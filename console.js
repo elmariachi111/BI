@@ -1,12 +1,11 @@
 const _ = require('lodash');
-const clusterBy = require('./reports/clusterBy');
+const BI = require('./reports/BI');
 const con = require('./db');
 
-clusterBy.age({
-    'sex': 'male',
-    'status': {$in: ['won', 'cleared']}
-}).then(buckets => {
-    console.log(buckets.errs);
+BI.query({'status': {$in: ['won', 'cleared']} })
+.gender()
+.then(buckets => {
+    console.log('errs: ' + buckets.errs);
     _.forEach(buckets.buckets, (count, ageRange) => {
         console.log(ageRange + ': ' + count);
     })

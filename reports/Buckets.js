@@ -2,13 +2,10 @@ const _ = require('lodash');
 
 module.exports = class Buckets {
 
-    constructor(adder) {
-        this.buckets = {};
+    constructor(buckets, adder) {
         this.errs = 0;
+        this.buckets = buckets;
         this.adder = adder;
-        _.range(10, 90, 10).forEach(r => {
-            this.buckets[r] = 0;
-        });
     }
 
     add(customer) {
@@ -17,5 +14,13 @@ module.exports = class Buckets {
 
     error() {
         this.errs++;
+    }
+
+    static range (from, to, step) {
+        let buckets = {};
+            _.range(from, to, step).forEach(r => {
+            buckets[r] = 0;
+        });
+        return buckets;
     }
 }

@@ -7,6 +7,10 @@ module.exports = class Customer {
         this.doc = doc;
     }
 
+    get gender() {
+        return this.doc.sex;
+    }
+
     get age() {
         if (!this.doc.birthday)
             return -1;
