@@ -2,7 +2,10 @@ const con = require('../db');
 const _ = require('lodash');
 
 const Customer = require('./Customer');
-const Buckets = require('./Buckets');
+const Buckets = {
+    GroupBuckets: require('./GroupBuckets'),
+    AggregateBuckets: require('./AggregateBuckets')
+};
 
 const query = function(query, buckets) {
 
@@ -25,48 +28,59 @@ class ClusterBy {
      */
     constructor(query) {
         this.query = query;
-        this.buckets = null;
+        this.chain = [];
     }
 
     cluster() {
+        let firstBucket = this.chain[0]();
+        let rest = _.slice(this.chain, 1);
+
         return new Promise( (resolve, reject) => {
             this.query().then(cursor => {
                 cursor.forEach(doc => {
-                    this.buckets.add(new Customer(doc));
+                    let customer = new Customer(doc);
+                    firstBucket.add(customer, rest);
                 }, () => {
-                    resolve(this.buckets)
+                    resolve(firstBucket)
                 });
             })
         });
     }
 
-    add(bucketFactory) {
-        if (null == this.buckets) {
-            this.buckets = bucketFactory();
-        } else {
-            this.buckets.addSubBucket(bucketFactory);
-        }
+    group(identifier) {
+        this.chain.push(
+            function() {
+                return new Buckets.GroupBuckets(identifier)
+            });
         return this;
     }
 
+    sum(identifier, name) {
+        this.chain.push(function() {
+            return new Buckets.AggregateBuckets(identifier, name)
+        });
+        return this;
+    }
 }
 
 module.exports = {
     query,
-    age: function() {
-        return new Buckets(Buckets.range(10, 90, 10), function (customer) {
-            if (customer.age > 0) {
-                let ageRange = (Math.floor(customer.age / 10)) * 10;
-                return ageRange;
-            } else {
-                return false;
-            }
-        });
+    age: function(customer) {
+        if (customer.age > 0) {
+            let ageRange = (Math.floor(customer.age / 10)) * 10;
+            return ageRange;
+        } else {
+            return false;
+        }
     },
-    gender: function() {
-        return new Buckets({male: 0, female: 0}, function (customer) {
-            return customer.gender;
-        });
+    gender: function(customer) {
+        return customer.gender;
+    },
+    source: function(customer) {
+        return customer.source;
+    },
+    provision: function(customer) {
+        return customer.provision;
     }
 };
 

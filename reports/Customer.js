@@ -30,4 +30,22 @@ module.exports = class Customer {
     get status() {
         return this.doc.status;
     }
+
+    get source() {
+        return this.doc.source;
+    }
+
+    get provision() {
+
+        let provision = _.sum(_.map((this.doc.opportunities || []), opportunity => {
+           const invoice =_.find(opportunity.activities, activity => {
+               return /InvoiceActivity/.test(activity.type)
+           });
+           if (invoice) {
+               return invoice.provision.cents;
+           }
+        }));
+
+        return provision / 100;
+    }
 }
