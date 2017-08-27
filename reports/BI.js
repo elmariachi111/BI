@@ -25,43 +25,48 @@ class ClusterBy {
      */
     constructor(query) {
         this.query = query;
+        this.buckets = null;
     }
 
-    cluster(buckets) {
+    cluster() {
         return new Promise( (resolve, reject) => {
             this.query().then(cursor => {
                 cursor.forEach(doc => {
-                    buckets.add(new Customer(doc))
+                    this.buckets.add(new Customer(doc));
                 }, () => {
-                    resolve(buckets)
+                    resolve(this.buckets)
                 });
             })
         });
     }
 
-    age() {
-        let buckets = new Buckets(Buckets.range(10, 90, 10), function (customer) {
-            if (customer.age > 0) {
-                let ageRange = (Math.floor(customer.age / 10)) * 10;
-                this.buckets[ageRange]++;
-            } else {
-                this.error();
-            }
-        });
-
-        return this.cluster(buckets);
+    add(bucketFactory) {
+        if (null == this.buckets) {
+            this.buckets = bucketFactory();
+        } else {
+            this.buckets.addSubBucket(bucketFactory);
+        }
+        return this;
     }
 
-    gender() {
-        let buckets = new Buckets({male: 0, female: 0}, function (customer) {
-            this.buckets[customer.gender]++;
-        });
-
-        return this.cluster(buckets);
-    }
 }
 
 module.exports = {
-    query
+    query,
+    age: function() {
+        return new Buckets(Buckets.range(10, 90, 10), function (customer) {
+            if (customer.age > 0) {
+                let ageRange = (Math.floor(customer.age / 10)) * 10;
+                return ageRange;
+            } else {
+                return false;
+            }
+        });
+    },
+    gender: function() {
+        return new Buckets({male: 0, female: 0}, function (customer) {
+            return customer.gender;
+        });
+    }
 };
 

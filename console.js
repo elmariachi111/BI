@@ -3,11 +3,10 @@ const BI = require('./reports/BI');
 const con = require('./db');
 
 BI.query({'status': {$in: ['won', 'cleared']} })
-.gender()
+    .add(BI.gender)
+    .add(BI.age)
+.cluster()
 .then(buckets => {
-    console.log('errs: ' + buckets.errs);
-    _.forEach(buckets.buckets, (count, ageRange) => {
-        console.log(ageRange + ': ' + count);
-    })
+    buckets.report();
     con.then(db => { db.close() });
 })
