@@ -73,6 +73,9 @@ module.exports = {
             return false;
         }
     },
+    yearkw: function(customer) {
+        return customer.createdAt.format('YYYY/ww');
+    },
     gender: function(customer) {
         return customer.gender;
     },
