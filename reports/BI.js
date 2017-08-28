@@ -65,12 +65,20 @@ class ClusterBy {
 
 module.exports = {
     query,
-    age: function(customer) {
-        if (customer.age > 0) {
-            let ageRange = (Math.floor(customer.age / 10)) * 10;
-            return ageRange;
-        } else {
-            return false;
+    age: function(splits=10) {
+        return function(customer) {
+            let age = customer.age;
+            let ageRange = 0;
+            if (age > 0) {
+                if (splits == 10) {
+                    ageRange = (Math.floor(age / 10)) * 10;
+                } else {
+                    ageRange = Math.floor(age / 10) * 10 + ( (age / 10) - Math.floor(age/10) >= 0.5 ? 5 : 0)
+                }
+                return ageRange;
+            } else {
+                return false;
+            }
         }
     },
     yearkw: function(customer) {
