@@ -39,8 +39,8 @@ module.exports = class Customer {
         return moment(this.doc.createdAt);
     }
 
-    get status() {
-        return this.doc.status;
+    get zip() {
+        return this.doc.address.zipCode;
     }
 
 

@@ -96,6 +96,14 @@ module.exports = {
         } else {
             return 'progress';
         }
+    },
+    zip1: function(customer) {
+        let zip = customer.zip;
+        if (zip == null || zip.length == 0) {
+            return false;
+        } else {
+            return zip.substr(0,1)
+        }
     }
 };
 

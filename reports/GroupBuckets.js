@@ -15,7 +15,6 @@ module.exports = class GroupBuckets extends Buckets {
     aggregate(customer) {
         let key = this.identifier(customer);
         if (key === false) {
-            this.errs++;
             return false;
         }
 
@@ -37,6 +36,10 @@ module.exports = class GroupBuckets extends Buckets {
                 aggregate.next.report(depth + 2);
             }
         });
+        if (this.errs > 0) {
+            let ratio = (this.errs * 100) / this.countCustomers;
+            console.log(_.repeat(" ", depth) + 'errs: ' + this.errs +  ' ('+Math.round(ratio)+'%)')
+        }
     }
 
 }

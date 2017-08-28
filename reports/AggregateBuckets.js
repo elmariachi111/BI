@@ -15,6 +15,8 @@ module.exports = class AggregateBuckets extends Buckets {
         if (value > 0) {
             this.buckets.sum += value;
             this.buckets.count++;
+        } else {
+            return false;
         }
 
         return this.name;

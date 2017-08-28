@@ -105,3 +105,4 @@ typings/
 # Embedded web-server pid file
 /.web-server-pid
 
+.vscode/launch.json

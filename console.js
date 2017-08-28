@@ -7,7 +7,9 @@ BI.query(/*{'status': {$in: ['won', 'cleared']} }*/{})
     //.group(BI.source)
     .group(BI.gender)
     .group(BI.conversion)
-    .group(BI.age)
+    .group(BI.zip1)
+    
+    //.group(BI.age)
     
     //.sum(BI.provision, 'provision')
 .cluster()
