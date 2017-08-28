@@ -3,11 +3,11 @@ const _ = require('lodash');
 
 const Customer = require('./Customer');
 const Buckets = {
-    GroupBuckets: require('./GroupBuckets'),
-    AggregateBuckets: require('./AggregateBuckets')
+    GroupBuckets: require('./Buckets/GroupBuckets'),
+    AggregateBuckets: require('./Buckets/AggregateBuckets')
 };
 
-const query = function(query, buckets) {
+const query = function(query) {
 
     return new ClusterBy(function() {
         return new Promise((resolve, reject) => {
@@ -65,6 +65,7 @@ class ClusterBy {
 
 module.exports = {
     query,
+    ClusterBy,
     age: function(splits=10) {
         return function(customer) {
             let age = customer.age;
@@ -81,37 +82,42 @@ module.exports = {
             }
         }
     },
-    yearkw: function(customer) {
-        return customer.createdAt.format('YYYY/ww');
+    yearkw: function() {
+        return (customer) => customer.createdAt.format('YYYY/ww');
     },
-    gender: function(customer) {
-        return customer.gender;
+    gender: function() {
+        return (customer) => customer.gender;
     },
-    source: function(customer) {
-        return customer.source;
+    source: function() {
+        return (customer) => customer.source;
     },
-    provision: function(customer) {
-        return customer.provision;
+    provision: function() {
+        return (customer) => customer.provision;
     },
-    status: function(customer) {
-        return customer.status;
+    status: function() {
+        return (customer) => customer.status;
     },
-    conversion: function(customer) {
-        if (customer.status == 'lost') {
-            return 'lost';
-        } else if(_.includes(['won', 'cleared'], customer.status)) {
-            return 'won';
-        } else {
-            return 'progress';
+    conversion: function() {
+        return (customer) => {
+            if (customer.status == 'lost') {
+                return 'lost';
+            } else if(_.includes(['won', 'cleared'], customer.status)) {
+                return 'won';
+            } else {
+                return 'progress';
+            }
         }
     },
-    zip1: function(customer) {
-        let zip = customer.zip;
-        if (zip == null || zip.length == 0) {
-            return false;
-        } else {
-            return zip.substr(0,1)
+    zip1: function() {
+        return (customer) => {
+            let zip = customer.zip;
+            if (zip == null || zip.length == 0) {
+                return false;
+            } else {
+                return zip.substr(0,1)
+            }
         }
+
     }
 };
 
