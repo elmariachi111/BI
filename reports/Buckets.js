@@ -4,8 +4,9 @@ module.exports = class GroupBuckets {
 
     constructor(identifier) {
         this.errs = 0;
-        this.buckets = {};
+        this.counted = 0;
 
+        this.buckets = {};
         this.identifier = identifier;
     }
 
@@ -17,6 +18,8 @@ module.exports = class GroupBuckets {
         let key = this.aggregate(customer)
         if (key == false)
             return;
+        
+        this.counted++;
 
         if (rest.length > 0) {
             if (this.buckets[key]['next'] == undefined) {

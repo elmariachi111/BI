@@ -84,6 +84,18 @@ module.exports = {
     },
     provision: function(customer) {
         return customer.provision;
+    },
+    status: function(customer) {
+        return customer.status;
+    },
+    conversion: function(customer) {
+        if (customer.status == 'lost') {
+            return 'lost';
+        } else if(_.includes(['won', 'cleared'], customer.status)) {
+            return 'won';
+        } else {
+            return 'progress';
+        }
     }
 };
 

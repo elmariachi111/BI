@@ -18,6 +18,7 @@ module.exports = class GroupBuckets extends Buckets {
             this.errs++;
             return false;
         }
+
         if (this.buckets[key] == undefined) {
             this.buckets[key] = {
                 value: 0
@@ -30,7 +31,8 @@ module.exports = class GroupBuckets extends Buckets {
 
     report(depth=0) {
         _.each(this.buckets, (aggregate, key) => {
-            console.log(_.repeat(" ", depth) + key + ': ' + aggregate.value);
+            let ratio = (aggregate.value * 100) / this.counted;
+            console.log(_.repeat(" ", depth) + key + ': ' + aggregate.value + ' ('+Math.round(ratio)+'%)');
             if (aggregate.next != null) {
                 aggregate.next.report(depth + 2);
             }

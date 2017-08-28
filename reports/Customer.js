@@ -38,6 +38,12 @@ module.exports = class Customer {
     get createdAt() {
         return moment(this.doc.createdAt);
     }
+
+    get status() {
+        return this.doc.status;
+    }
+
+
     get provision() {
 
         let provision = _.sum(_.map((this.doc.opportunities || []), opportunity => {
