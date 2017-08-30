@@ -2,6 +2,7 @@ const _ = require('lodash');
 const Buckets = require('./Buckets');
 
 module.exports = class AggregateBuckets extends Buckets {
+
     constructor(identifier, name) {
         super(identifier);
         this.name = name;
@@ -10,14 +11,26 @@ module.exports = class AggregateBuckets extends Buckets {
             count: 0
         };
     }
+
     aggregate(customer) {
-        const value = this.identifier(customer);
-        if (value > 0) {
-            this.buckets.sum += value;
-            this.buckets.count++;
-        } else {
-            return false;
-        }
+        return new Promise((resolve, reject) => {
+            let value = this.identifier(customer);
+            if (value instanceof Promise) {
+                value.then(value => resolve(this.incr(value)))
+                     .catch(reject)
+            } else {
+                if (!(_.isFinite(value) || value === 0)) {
+                    reject(value);
+                } else {
+                    resolve(this.incr(value));
+                }
+            }
+        });
+    }
+
+    incr(value) {
+        this.buckets.sum += value;
+        this.buckets.count++;
 
         return this.name;
     }

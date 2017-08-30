@@ -4,17 +4,26 @@ const Buckets = require('./Buckets');
 module.exports = class GroupBuckets extends Buckets {
 
     aggregate(customer) {
-        let key = this.identifier(customer);
-        if (key === false) {
-            return false;
-        }
+        return new Promise((resolve, reject) => {
+            let key = this.identifier(customer);
+            if (key instanceof Promise) {
+                key.then(key => resolve(this.incr(key)))
+                   .catch(reject)
+            } else {
+                if (key === false)
+                    reject();
+                else
+                    resolve(this.incr(key));
+            }
+        });
+    }
 
+    incr(key) {
         if (this.buckets[key] == undefined) {
             this.buckets[key] = {
                 value: 0
             };
         }
-
         this.buckets[key].value++;
         return key;
     }

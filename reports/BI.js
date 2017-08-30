@@ -7,44 +7,40 @@ const Buckets = {
     AggregateBuckets: require('./Buckets/AggregateBuckets')
 };
 
-const query = function(query) {
-
-    return new ClusterBy(function() {
-        return new Promise((resolve, reject) => {
-            con.then(db => {
-                const col = db.collection('customers');
-                const cursor = col.find(query);
-
-                resolve(cursor);
-            })
-        });
-    });
-}
-
 class ClusterBy {
+
+    constructor() {
+        this.chain = [];
+        this._query = {};
+    }
 
     /**
      * @param query function returning a promise on an iterable (cursor)
+     * @return Promise
      */
-    constructor(query) {
-        this.query = query;
-        this.chain = [];
-    }
-
-    cluster() {
-        let firstBucket = this.chain[0]();
-        let rest = _.slice(this.chain, 1);
-
+    execute() {
         return new Promise( (resolve, reject) => {
-            this.query().then(cursor => {
+            con.then(db => {
+                const col = db.collection('customers');
+                const cursor = col.find(this._query);
+
+                let firstBucket = this.chain[0]();
+                let rest = _.slice(this.chain, 1);
+
                 cursor.forEach(doc => {
                     let customer = new Customer(doc);
                     firstBucket.add(customer, rest);
                 }, () => {
                     resolve(firstBucket)
                 });
-            })
+
+            });
         });
+    }
+
+    query(query) {
+        this._query = query;
+        return this;
     }
 
     group(identifier) {
@@ -64,7 +60,6 @@ class ClusterBy {
 }
 
 module.exports = {
-    query,
     ClusterBy,
     age: function(splits=10) {
         return function(customer) {
@@ -117,7 +112,24 @@ module.exports = {
                 return zip.substr(0,1)
             }
         }
+    },
+    location: function() {
+        return (customer) => {
+            return new Promise( (resolve, reject) => {
+                con.then(db => {
+                    _.find(customer.findWebsiteActivities(), activity => {
+                        db.collection('action').find({_id: activity.action.id}).then(action => {
+                            let query = action.query;
+                            if (query.lat != undefined) {
+                                resolve({lat: query.lat, lon: query.lon});
+                            }
+                        });
 
+                    })
+                    reject(); //nothing found.
+                });
+            })
+        }
     }
 };
 

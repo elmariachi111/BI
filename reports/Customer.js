@@ -43,7 +43,6 @@ module.exports = class Customer {
         return this.doc.address.zipCode;
     }
 
-
     get provision() {
 
         let provision = _.sum(_.map((this.doc.opportunities || []), opportunity => {
@@ -56,5 +55,12 @@ module.exports = class Customer {
         }));
 
         return provision / 100;
+    }
+
+    findWebsiteActivities() {
+        return _.flatMap(this.doc.opportunities, op =>
+            _.filter(op.activities, activity => /FromWebsite/.test(activity.type) )
+        )
+
     }
 }
