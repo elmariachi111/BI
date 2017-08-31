@@ -21,19 +21,20 @@ class ClusterBy {
     execute() {
         return new Promise( (resolve, reject) => {
             con.then(db => {
-                const col = db.collection('customers');
-                const cursor = col.find(this._query);
+                const cursor = db.collection('customers').find(this._query);
 
                 let firstBucket = this.chain[0]();
                 let rest = _.slice(this.chain, 1);
 
-                cursor.forEach(doc => {
+                const process = (doc => {
                     let customer = new Customer(doc);
-                    firstBucket.add(customer, rest);
-                }, () => {
-                    resolve(firstBucket)
-                });
-
+                    firstBucket.add(customer, rest).then(() => {
+                        cursor.next().then(process).catch(() => {
+                            resolve(firstBucket)
+                        });
+                    });
+                })
+                cursor.next().then(process) //catch: 0 rows found ;)
             });
         });
     }

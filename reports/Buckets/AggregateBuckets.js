@@ -40,6 +40,7 @@ module.exports = class AggregateBuckets extends Buckets {
     }
 
     report(depth = 0) {
-        console.log(_.repeat(" ", depth) + this.name + ': ' + Math.round(this.buckets.sum) + '(avg:' + this.average() + ', cnt:'+this.buckets.count+')' );
+        const indent = _.repeat(" ", depth);
+        console.log(indent + this.name + ': ' + Math.round(this.buckets.sum) + ' (avg:' + this.average() + ', cnt:'+this.buckets.count+') errs:' + this.errs );
     }
 }

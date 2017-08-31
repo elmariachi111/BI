@@ -29,16 +29,17 @@ module.exports = class GroupBuckets extends Buckets {
     }
 
     report(depth=0) {
+        const indent = _.repeat(" ", depth);
         _.each(this.buckets, (aggregate, key) => {
             let ratio = (aggregate.value * 100) / this.counted;
-            console.log(_.repeat(" ", depth) + key + ': ' + aggregate.value + ' ('+Math.round(ratio)+'%)');
+            console.log(indent + key + ': ' + aggregate.value + ' ('+_.round(ratio,2)+'%)');
             if (aggregate.next != null) {
                 aggregate.next.report(depth + 2);
             }
         });
         if (this.errs > 0) {
             let ratio = (this.errs * 100) / this.countCustomers;
-            console.log(_.repeat(" ", depth) + 'errs: ' + this.errs +  ' ('+Math.round(ratio)+'%)')
+            console.log(indent + 'errs: ' + this.errs +  ' ('+_.round(ratio,2)+'%)')
         }
     }
 
