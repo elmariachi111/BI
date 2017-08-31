@@ -3,15 +3,19 @@ const BI = require('./reports/BI');
 const con = require('./db');
 
 new BI.ClusterBy()
-    .query(/*{'status': {$in: ['won','cleared']} }*/)
+    .query({
+        'source': 'core',
+        'createdAt': {'$gt': new Date('2016-05-05')},
+        'status': {$in: ['won','cleared']}
+    })
     //.group(BI.location())
     //.group(BI.yearkw())
     //.group(BI.zip1())
 
     //.group(BI.age(10))
-    .group(BI.source())
+    .group(BI.location())
     //.group(BI.gender())
-    .group(BI.conversion())
+    //.group(BI.conversion())
 
     //.sum(BI.provision(), 'provision')
 

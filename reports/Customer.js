@@ -5,6 +5,7 @@ const _ = require('lodash');
 module.exports = class Customer {
     constructor(doc) {
         this.doc = doc;
+        //this.id = doc._id;
     }
 
     get gender() {
@@ -21,6 +22,10 @@ module.exports = class Customer {
 
     get id() {
         return this.doc._id;
+    }
+
+    set id(id) {
+        this.id = id;
     }
 
     get name() {
@@ -58,6 +63,10 @@ module.exports = class Customer {
     }
 
     findWebsiteActivities() {
+        if (!this.doc) {
+            console.log("wooot");
+            return [];
+        }
         return _.flatMap(this.doc.opportunities, op =>
             _.filter(op.activities, activity => /FromWebsite/.test(activity.type) )
         )

@@ -1,5 +1,6 @@
 const con = require('../db');
 const _ = require('lodash');
+const Geohash = require('latlon-geohash');
 
 const Customer = require('./Customer');
 const Buckets = {
@@ -32,6 +33,8 @@ class ClusterBy {
                         cursor.next().then(process).catch(() => {
                             resolve(firstBucket)
                         });
+                    }).catch(err => {
+                        console.dir(err);
                     });
                 })
                 cursor.next().then(process) //catch: 0 rows found ;)
@@ -118,16 +121,26 @@ module.exports = {
         return (customer) => {
             return new Promise( (resolve, reject) => {
                 con.then(db => {
-                    _.find(customer.findWebsiteActivities(), activity => {
-                        db.collection('action').find({_id: activity.action.id}).then(action => {
-                            let query = action.query;
-                            if (query.lat != undefined) {
-                                resolve({lat: query.lat, lon: query.lon});
-                            }
-                        });
+                    let ids = _.map(customer.findWebsiteActivities(), 'action.oid');
+                    if (ids.length == 0)
+                        resolve(false);
 
-                    })
-                    reject(); //nothing found.
+                    db.collection('actions').findOne({_id: ids[0]}, (err, action) => {
+                        if (err) {
+                            return resolve(false);
+                        }
+                        if (!action || !action.query) {
+                            return resolve(false)
+                        }
+                        let query = action.query;
+                        if (query.lat != undefined) {
+                            let geohash = Geohash.encode(query.lat,query.lon, 3);
+                            return resolve(geohash);
+                        }
+                    });
+                    //reject(); //nothing found.
+                }).catch(err => {
+                    console.dir(err);
                 });
             })
         }
