@@ -63,13 +63,8 @@ module.exports = class Customer {
     }
 
     findWebsiteActivities() {
-        if (!this.doc) {
-            console.log("wooot");
-            return [];
-        }
         return _.flatMap(this.doc.opportunities, op =>
             _.filter(op.activities, activity => /FromWebsite/.test(activity.type) )
         )
-
     }
 }

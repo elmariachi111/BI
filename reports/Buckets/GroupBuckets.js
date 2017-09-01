@@ -7,13 +7,13 @@ module.exports = class GroupBuckets extends Buckets {
         return new Promise((resolve, reject) => {
             let key = this.identifier(customer);
             if (key instanceof Promise) {
-                key.then(key => resolve(this.incr(key)))
-                   .catch(reject)
+                key.then(key => {
+                    (key === false) ? reject(key) : resolve(this.incr(key));
+                }).catch(() => {
+                    reject(false)
+                });
             } else {
-                if (key === false)
-                    reject();
-                else
-                    resolve(this.incr(key));
+                (key === false) ? reject(key) : resolve(this.incr(key));
             }
         });
     }

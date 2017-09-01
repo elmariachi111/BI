@@ -15,15 +15,15 @@ module.exports = class GroupBuckets {
         this.errs++;
     }
 
-    add(customer, rest) {
+    add(customer, tail) {
         this.countCustomers++;
         return this.aggregate(customer).then(key => {
             this.counted++
-            if (rest.length > 0) {
+            if (tail.length > 0) {
                 if (this.buckets[key]['next'] == undefined) {
-                    this.buckets[key]['next'] = rest[0]();
+                    this.buckets[key]['next'] = tail[0]();
                 }
-                this.buckets[key]['next'].add(customer, _.slice(rest, 1));
+                this.buckets[key]['next'].add(customer, _.slice(tail, 1));
             }
         }).catch(() => {
             this.error();

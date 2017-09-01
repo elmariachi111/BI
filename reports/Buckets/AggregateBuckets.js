@@ -19,7 +19,7 @@ module.exports = class AggregateBuckets extends Buckets {
                 value.then(value => resolve(this.incr(value)))
                      .catch(reject)
             } else {
-                if (!(_.isFinite(value) || value === 0)) {
+                if (value == false || !(_.isFinite(value) || value === 0)) {
                     reject(value);
                 } else {
                     resolve(this.incr(value));

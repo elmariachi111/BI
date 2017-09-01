@@ -1,6 +1,7 @@
 const con = require('../db');
 const _ = require('lodash');
 const Geohash = require('latlon-geohash');
+const winston = require('winston');
 
 const Customer = require('./Customer');
 const Buckets = {
@@ -23,21 +24,27 @@ class ClusterBy {
         return new Promise( (resolve, reject) => {
             con.then(db => {
                 const cursor = db.collection('customers').find(this._query);
-
                 let firstBucket = this.chain[0]();
-                let rest = _.slice(this.chain, 1);
+                let tail = _.slice(this.chain, 1);
 
                 const process = (doc => {
+                    if (doc == null) {
+                        return resolve(firstBucket);
+                    }
                     let customer = new Customer(doc);
-                    firstBucket.add(customer, rest).then(() => {
-                        cursor.next().then(process).catch(() => {
-                            resolve(firstBucket)
-                        });
+                    firstBucket.add(customer, tail).then(() => {
+                        cursor.next().then(process);
                     }).catch(err => {
-                        console.dir(err);
+                        winston.error(err);
+                        reject(err);
                     });
                 })
-                cursor.next().then(process) //catch: 0 rows found ;)
+                cursor.count().then(c => {
+                    winston.info("%s docs",c);
+                    cursor.next().then(process).catch(() => {
+                        winston.error('cheers');
+                    })
+                });
             });
         });
     }
@@ -122,27 +129,22 @@ module.exports = {
             return new Promise( (resolve, reject) => {
                 con.then(db => {
                     let ids = _.map(customer.findWebsiteActivities(), 'action.oid');
-                    if (ids.length == 0)
-                        resolve(false);
-
+                    if (ids.length == 0) {
+                        winston.debug('no website action');
+                        return resolve(false);
+                    }
                     db.collection('actions').findOne({_id: ids[0]}, (err, action) => {
                         if (err) {
+                            winston.notice('action %s not found', ids[0]);
                             return resolve(false);
                         }
-                        if (!action || !action.query) {
-                            return resolve(false)
+                        if (action == null || !action.query || !action.query.lat || !action.query.lon) {
+                            return resolve(false);
                         }
-                        let query = action.query;
-                        if (query.lat != undefined) {
-                            let geohash = Geohash.encode(query.lat,query.lon, 3);
-                            return resolve(geohash);
-                        }
+                        return resolve(Geohash.encode(action.query.lat, action.query.lon, 3));
                     });
-                    //reject(); //nothing found.
-                }).catch(err => {
-                    console.dir(err);
                 });
-            })
+            });
         }
     }
 };
