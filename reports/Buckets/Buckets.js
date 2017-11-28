@@ -18,7 +18,7 @@ module.exports = class GroupBuckets {
     add(customer, tail) {
         this.countCustomers++;
         return this.aggregate(customer).then(key => {
-            this.counted++
+            this.counted++;
             if (tail.length > 0) {
                 if (this.buckets[key]['next'] == undefined) {
                     this.buckets[key]['next'] = tail[0]();

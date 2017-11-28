@@ -2,6 +2,7 @@ const con = require('../db');
 const _ = require('lodash');
 const Geohash = require('latlon-geohash');
 const winston = require('winston');
+const moment = require('moment');
 
 const Customer = require('./Customer');
 const Buckets = {
@@ -121,6 +122,18 @@ module.exports = {
                 return false;
             } else {
                 return zip.substr(0,1)
+            }
+        }
+    },
+    // days
+    timeToFirstAppointment: function() {
+        return (customer) => {
+            const earliest = customer.findFirstAppointment();
+            if (earliest) {
+                const diff = customer.createdAt.diff(moment(earliest.timeSlot.from.getTime()), 'days');
+                return  Math.abs(diff);                
+            } else {
+                return 0;
             }
         }
     },

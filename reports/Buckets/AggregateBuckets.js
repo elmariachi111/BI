@@ -20,7 +20,7 @@ module.exports = class AggregateBuckets extends Buckets {
                      .catch(reject)
             } else {
                 if (value == false || !(_.isFinite(value) || value === 0)) {
-                    reject(value);
+                    reject();
                 } else {
                     resolve(this.incr(value));
                 }
@@ -36,7 +36,8 @@ module.exports = class AggregateBuckets extends Buckets {
     }
 
     average() {
-        return Math.round(this.buckets.sum / this.buckets.count);
+        const avg = this.buckets.sum / this.buckets.count;
+        return avg.toFixed(2);
     }
 
     report(depth = 0) {

@@ -40,6 +40,9 @@ module.exports = class Customer {
         return this.doc.source;
     }
 
+    /**
+     * @returns moment
+     */
     get createdAt() {
         return moment(this.doc.createdAt);
     }
@@ -66,5 +69,29 @@ module.exports = class Customer {
         return _.flatMap(this.doc.opportunities, op =>
             _.filter(op.activities, activity => /FromWebsite/.test(activity.type) )
         )
+    }
+
+    findAppointments() {
+        return _.flatMap(this.doc.opportunities, op => {
+            return _.filter(op.activities, activity => {
+                return /AppointmentActivity/.test(activity.type)
+            })
+        })
+    }
+
+    findFirstAppointment() {
+        const appointments = this.findAppointments();
+        let earliestTs = Infinity;
+        let earliest = null;
+
+        _.each(appointments, app => {
+            if (app.timeSlot && app.timeSlot.from) {
+                if (app.timeSlot.from.getTime() < earliestTs) {
+                    earliestTs = app.timeSlot.from.getTime();
+                    earliest = app;
+                }
+            }
+        });
+        return earliest;
     }
 }
