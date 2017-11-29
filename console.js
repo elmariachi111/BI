@@ -20,7 +20,7 @@ new BI.ClusterBy()
 //.group(BI.gender())
 //.group(BI.conversion())
 //.sum(BI.provision(), 'provision')
-.sum(BI.timeToFirstAppointment(), 'firstApp')
+.sum(BI.timeToFirstAppointment(['settled','occurred']), 'firstApp')
 
 .execute()
 .then(buckets => {

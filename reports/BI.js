@@ -10,6 +10,21 @@ const Buckets = {
     AggregateBuckets: require('./Buckets/AggregateBuckets')
 };
 
+const _earliestAppointment = appointments => {
+    let earliestTs = Infinity;
+    let earliest = null;
+
+    _.each(appointments, app => {
+        if (app.timeSlot && app.timeSlot.from) {
+            if (app.timeSlot.from.getTime() < earliestTs) {
+                earliestTs = app.timeSlot.from.getTime();
+                earliest = app;
+            }
+        }
+    });
+    return earliest;
+}
+
 class ClusterBy {
 
     constructor() {
@@ -126,9 +141,18 @@ module.exports = {
         }
     },
     // days
-    timeToFirstAppointment: function() {
+    timeToFirstAppointment: function(onlyStates) {
         return (customer) => {
-            const earliest = customer.findFirstAppointment();
+            let appointments = customer.findAppointments();
+            const len = appointments.length;
+            if (!!onlyStates) {
+                appointments = _.filter(appointments, app => _.includes(onlyStates, app.status));
+            }
+
+            if (appointments.length == 0)
+                return 0;
+            
+            const earliest = _earliestAppointment(appointments);
             if (earliest) {
                 const diff = customer.createdAt.diff(moment(earliest.timeSlot.from.getTime()), 'days');
                 return  Math.abs(diff);                

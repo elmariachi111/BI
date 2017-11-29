@@ -78,20 +78,4 @@ module.exports = class Customer {
             })
         })
     }
-
-    findFirstAppointment() {
-        const appointments = this.findAppointments();
-        let earliestTs = Infinity;
-        let earliest = null;
-
-        _.each(appointments, app => {
-            if (app.timeSlot && app.timeSlot.from) {
-                if (app.timeSlot.from.getTime() < earliestTs) {
-                    earliestTs = app.timeSlot.from.getTime();
-                    earliest = app;
-                }
-            }
-        });
-        return earliest;
-    }
 }
