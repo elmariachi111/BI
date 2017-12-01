@@ -8,19 +8,20 @@ winston.cli();
 
 new BI.ClusterBy()
 .query({
-    //'source': 'phone',
-    'createdAt': {'$gt': new Date('2017-01-01')},
+    'source': {$in: ['phone', 'chat']},
+    'createdAt': {'$gt': new Date('2017-06-01')},
     //'status': {$in: ['won', 'cleared']}
 })
 //.group(BI.location())
 .group(BI.yearkw())
+.group(BI.agent())
 //.group(BI.zip1())
 //.group(BI.age(5))
 //.group(BI.location())
 //.group(BI.gender())
 //.group(BI.conversion())
 //.sum(BI.provision(), 'provision')
-.sum(BI.timeToFirstAppointment(['settled','occurred']), 'firstApp')
+//.sum(BI.timeToFirstAppointment(['settled','occurred']), 'firstApp')
 
 .execute()
 .then(buckets => {

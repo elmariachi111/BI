@@ -161,6 +161,23 @@ module.exports = {
             }
         }
     },
+    agent: function() {
+        return customer => {
+            const apps = customer.findAppointments();
+            if (apps == 0) {
+                return null;
+            }
+            const users = _.uniq(_.map(apps,'user')).filter(Boolean);
+            if (users.length > 1) {
+                //debugger;
+            }
+            const ret = users[0] || null;
+            if (ret == null) {
+                debugger;
+            }
+            return ret;                   
+        }
+    },
     location: function() {
         return (customer) => {
             return new Promise( (resolve, reject) => {
