@@ -107,6 +107,9 @@ module.exports = {
     yearkw: function() {
         return (customer) => customer.createdAt.format('YYYY/ww');
     },
+    hour: function() {
+        return (customer) => customer.createdAt.hour();
+    },
     gender: function() {
         return (customer) => customer.gender;
     },
