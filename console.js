@@ -8,13 +8,14 @@ winston.cli();
 
 new BI.ClusterBy()
 .query({
-    'source': {$in: ['phone', 'chat']},
+    'source': {$in: ['phone']},
     'createdAt': {'$gt': new Date('2017-06-01')},
     //'status': {$in: ['won', 'cleared']}
 })
 //.group(BI.location())
-.group(BI.yearkw())
-.group(BI.agent())
+//.group(BI.yearkw())
+.group(BI.hour())
+//.group(BI.agent())
 //.group(BI.zip1())
 //.group(BI.age(5))
 //.group(BI.location())
